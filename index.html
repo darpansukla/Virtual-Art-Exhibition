@@ -226,26 +226,39 @@
 
     </div>
 
-    <!-- PURCHASE MODAL -->
-    <div id="buy-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="w-full max-w-md bg-redcard border-t sm:border border-red-900/60 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-center justify-between pb-3 border-b border-red-900/50 mb-4">
+    <!-- PURCHASE UPI QR MODAL -->
+    <div id="buy-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="w-full max-w-md bg-redcard border-t sm:border border-red-900/60 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center">
+            <div class="w-full flex items-center justify-between pb-3 border-b border-red-900/50 mb-4">
                 <h3 class="font-serif font-bold text-sm text-white flex items-center gap-2">
-                    <i class="fa-solid fa-bag-shopping text-redtheme"></i> Acquire Artwork
+                    <i class="fa-solid fa-qrcode text-redtheme"></i> Scan to Collect Painting
                 </h3>
                 <button onclick="closeBuyModal()" class="w-7 h-7 rounded-full bg-reddark text-gray-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
-            <div id="buy-modal-content" class="mb-4"></div>
-            <form onsubmit="handleCheckout(event)" class="space-y-3">
-                <input type="text" required placeholder="Your Full Name" class="w-full bg-reddark border border-red-900/50 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-redtheme">
-                <input type="email" required placeholder="Email Address" class="w-full bg-reddark border border-red-900/50 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-redtheme">
-                <textarea rows="2" required placeholder="Delivery Address for Physical Artwork..." class="w-full bg-reddark border border-red-900/50 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-redtheme"></textarea>
-                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-redtheme to-red-800 text-white font-bold text-xs uppercase tracking-wider shadow-lg hover:brightness-110 transition">
-                    Confirm Order
-                </button>
-            </form>
+
+            <div id="buy-modal-content" class="w-full mb-3"></div>
+
+            <!-- Dynamic QR Code Display -->
+            <div class="p-3 bg-white rounded-2xl border-4 border-redgold/60 shadow-2xl my-2">
+                <img id="upi-qr-image" src="" alt="UPI QR Code" class="w-48 h-48 object-contain">
+            </div>
+
+            <div class="my-2 bg-reddark border border-red-900/60 rounded-xl px-4 py-2 text-xs font-mono text-redgold flex items-center gap-2">
+                <span>UPI ID:</span>
+                <strong class="text-white select-all">sdarpan128@oksbi</strong>
+                <button onclick="copyUPI()" class="ml-2 text-gray-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
+            </div>
+
+            <!-- Full Amount Info Notice -->
+            <p class="text-[11px] text-gray-300 bg-redtheme/20 border border-redtheme/40 rounded-xl p-3 my-2 leading-relaxed">
+                ❤️ <strong>Full amount is transferred directly to the student artist.</strong> You can scan the QR code above and collect the physical painting!
+            </p>
+
+            <button onclick="closeBuyModal()" class="w-full py-3 mt-2 rounded-xl bg-gradient-to-r from-redtheme to-red-800 text-white font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition">
+                Done / Close
+            </button>
         </div>
     </div>
 
@@ -257,7 +270,9 @@
     <!-- SCRIPT ENGINE -->
     <script>
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTFRg_lxjO5-ps81aRxQj0V46eA9MQjMPcWM4p_OQgKPRjbaTXC5w24l45yfokmoZuyUmkEHTGtoX5q/pub?gid=0&single=true&output=csv";
-        
+        // Optional Google Apps Script Web App URL to store likes in Sheet2
+        const GOOGLE_SHEET_LIKES_WEBAPP_URL = ""; 
+
         let reelArtworks = [];
         let uniqueStudents = new Set();
         let likedArtworks = new Set(JSON.parse(localStorage.getItem('red_liked_artworks') || '[]'));
@@ -277,6 +292,15 @@
                 return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
             }
             return url;
+        }
+
+        // Fisher-Yates Array Shuffle Algorithm for Randomization
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
 
         function fetchSheetData() {
@@ -336,6 +360,9 @@
                     });
                 }
             });
+
+            // Randomize paintings array so they appear randomly on every load
+            reelArtworks = shuffleArray(reelArtworks);
 
             document.getElementById('stat-total-paintings').innerText = reelArtworks.length;
             document.getElementById('stat-total-students').innerText = uniqueStudents.size;
@@ -411,7 +438,6 @@
             showToast("Welcome to the Exhibition Gallery!");
         }
 
-        // Automatic Reel Scrolling
         function startAutoReelScrolling() {
             const feed = document.getElementById('reel-feed');
             if (autoScrollInterval) clearInterval(autoScrollInterval);
@@ -479,7 +505,7 @@
                         </div>
 
                         <!-- Like Button -->
-                        <button onclick="toggleReelLike('${art.id}', ${index}, event)" class="flex flex-col items-center gap-1 group">
+                        <button onclick="toggleReelLike('${art.id}', '${escapeAttr(art.artistName)}', ${index}, event)" class="flex flex-col items-center gap-1 group">
                             <div class="w-11 h-11 rounded-full bg-redcard/80 border border-redtheme/40 backdrop-blur-md flex items-center justify-center ${isLiked ? 'text-redtheme border-redtheme' : 'text-white'} transition">
                                 <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart text-xl"></i>
                             </div>
@@ -523,24 +549,42 @@
             });
         }
 
-        function toggleReelLike(id, index, event) {
+        // Liking Handler & Storing to Google Sheets Sheet2
+        function toggleReelLike(id, artistName, index, event) {
             const countEl = document.getElementById(`like-count-${index}`);
             if (!countEl) return;
             let count = parseInt(countEl.innerText) || 0;
+            let action = 'like';
 
             if (likedArtworks.has(id)) {
                 likedArtworks.delete(id);
                 countEl.innerText = count - 1;
                 showToast("Removed from favorites");
+                action = 'unlike';
             } else {
                 likedArtworks.add(id);
                 countEl.innerText = count + 1;
                 showToast("Liked Painting ❤️");
                 triggerFullHeartBurst(event);
+                action = 'like';
             }
             localStorage.setItem('red_liked_artworks', JSON.stringify(Array.from(likedArtworks)));
-            const currentQuery = document.getElementById('search-input').value;
-            filterArtworks(currentQuery);
+
+            // Store like data in Google Sheet2 Web App if endpoint URL provided
+            if (GOOGLE_SHEET_LIKES_WEBAPP_URL) {
+                fetch(GOOGLE_SHEET_LIKES_WEBAPP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        artworkId: id,
+                        artistName: artistName,
+                        totalLikes: parseInt(countEl.innerText),
+                        action: action,
+                        timestamp: new Date().toISOString()
+                    })
+                }).catch(err => console.log('Sheet update error:', err));
+            }
         }
 
         function triggerFullHeartBurst(e) {
@@ -571,14 +615,21 @@
             }
         }
 
+        // Generate UPI QR Code Pop-Up
         function openBuyModal(artist, desc, price, img) {
+            const numericPrice = (price || '').replace(/[^0-9]/g, '') || '500';
+            const upiUrl = `upi://pay?pa=sdarpan128@oksbi&pn=SouthPointArtExhibition&am=${numericPrice}&cu=INR&tn=Painting-${encodeURIComponent(artist)}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+
+            document.getElementById('upi-qr-image').src = qrApiUrl;
+
             document.getElementById('buy-modal-content').innerHTML = `
-                <div class="flex items-center gap-3 p-3 rounded-xl bg-reddark border border-red-900/50">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-reddark border border-red-900/50 text-left w-full">
                     <img src="${img}" class="w-14 h-14 rounded-lg object-cover border border-red-900/60">
                     <div>
                         <h4 class="font-serif font-bold text-xs text-white">${artist}</h4>
                         <p class="text-[10px] text-gray-400 line-clamp-1">${desc}</p>
-                        <p class="text-xs font-bold text-redgold mt-1">${price}</p>
+                        <p class="text-sm font-bold text-redgold mt-1">₹${numericPrice}</p>
                     </div>
                 </div>
             `;
@@ -591,10 +642,9 @@
             document.getElementById('buy-modal').classList.add('hidden');
         }
 
-        function handleCheckout(e) {
-            e.preventDefault();
-            closeBuyModal();
-            showToast("Acquisition order submitted!");
+        function copyUPI() {
+            navigator.clipboard.writeText('sdarpan128@oksbi');
+            showToast("UPI ID Copied! sdarpan128@oksbi");
         }
 
         function escapeAttr(str) {
