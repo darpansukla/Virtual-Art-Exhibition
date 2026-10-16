@@ -99,6 +99,24 @@
             100% { opacity: 0; transform: translate(calc(-50% + var(--dx2)), calc(-50% - 260px)) scale(1.8) rotate(var(--rot2)); }
         }
 
+        /* Big Double-Tap Heart Pop */
+        .double-tap-heart {
+            position: absolute;
+            z-index: 50;
+            color: #dc2626;
+            font-size: 80px;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0);
+            animation: popHeart 0.8s ease-out forwards;
+            filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.8));
+        }
+        @keyframes popHeart {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.3) rotate(10deg); opacity: 1; }
+            60% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.6) rotate(0deg); opacity: 0; }
+        }
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -112,45 +130,57 @@
     <div class="w-full max-w-md h-screen relative bg-reddark overflow-hidden border-x border-red-900/40 flex flex-col">
 
         <!-- SCREEN 1: WELCOME ENTRANCE SCREEN -->
-        <div id="welcome-screen" class="fixed inset-0 z-50 bg-gradient-to-b from-reddark via-[#1a0305] to-black flex flex-col items-center justify-between p-6 text-center max-w-md mx-auto transition-opacity duration-700">
-            <div class="my-auto animate-fade-in flex flex-col items-center w-full">
-                <div class="w-20 h-20 rounded-full bg-redtheme/20 border-2 border-redtheme flex items-center justify-center mb-4 shadow-[0_0_35px_rgba(220,38,38,0.6)]">
-                    <i class="fa-solid fa-palette text-redtheme text-3xl"></i>
+        <div id="welcome-screen" class="fixed inset-0 z-50 bg-gradient-to-b from-reddark via-[#1a0305] to-black flex flex-col items-center justify-between p-5 text-center max-w-md mx-auto transition-opacity duration-700 overflow-y-auto">
+            <div class="my-auto animate-fade-in flex flex-col items-center w-full py-2">
+                <div class="w-14 h-14 rounded-full bg-redtheme/20 border-2 border-redtheme flex items-center justify-center mb-2 shadow-[0_0_25px_rgba(220,38,38,0.6)]">
+                    <i class="fa-solid fa-palette text-redtheme text-2xl"></i>
                 </div>
                 
                 <!-- School Name Heading -->
-                <h2 class="font-serif text-sm font-bold text-redgold mb-1 tracking-wide">South Point Visual & Performing Arts School, Guwahati (5300)</h2>
-                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-3">Annual Exhibition Showcase</span>
+                <h2 class="font-serif text-xs font-bold text-redgold mb-0.5 tracking-wide">South Point Visual & Performing Arts School, Guwahati (5300)</h2>
+                <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">Annual Exhibition Showcase</span>
                 
-                <h1 class="font-serif text-2xl font-black text-white leading-tight mb-3">
+                <h1 class="font-serif text-xl font-black text-white leading-tight mb-2">
                     Welcome to the <br><span class="text-redtheme drop-shadow-md">Virtual Art Exhibition</span>
                 </h1>
-                <p class="text-xs text-gray-300 max-w-xs leading-relaxed mb-5 font-medium">
-                    All paintings created by our talented students.
-                </p>
 
-                <!-- Statistics Banner -->
-                <div class="grid grid-cols-2 gap-3 w-full max-w-xs mb-5">
-                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-3 shadow-lg">
-                        <span id="stat-total-paintings" class="font-serif font-black text-xl text-redgold block">--</span>
-                        <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Paintings</span>
-                    </div>
-                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-3 shadow-lg">
-                        <span id="stat-total-students" class="font-serif font-black text-xl text-redtheme block">--</span>
-                        <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Total Students Participated</span>
+                <!-- FEATURED HIGHEST LIKED PAINTING BANNER -->
+                <div id="featured-top-painting" class="w-full bg-redcard border border-redgold/60 rounded-2xl p-3 mb-3 shadow-xl flex items-center gap-3 text-left relative overflow-hidden hidden">
+                    <div class="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-redgold text-7xl"><i class="fa-solid fa-crown"></i></div>
+                    <img id="featured-img" src="" class="w-16 h-16 rounded-xl object-cover border border-red-900 flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[9px] font-bold text-redgold uppercase tracking-wider mb-0.5">
+                            <i class="fa-solid fa-crown text-[8px]"></i> Top Liked Painting
+                        </div>
+                        <h4 id="featured-artist" class="font-serif font-bold text-xs text-white truncate">--</h4>
+                        <div class="flex items-center gap-1.5 mt-1 text-[10px] text-redtheme font-bold">
+                            <i class="fa-solid fa-heart"></i> <span id="featured-likes">0</span> Likes
+                        </div>
                     </div>
                 </div>
 
-                <div class="w-12 h-0.5 bg-gradient-to-r from-transparent via-redtheme to-transparent mb-3"></div>
+                <!-- Statistics Banner -->
+                <div class="grid grid-cols-2 gap-2.5 w-full max-w-xs mb-3">
+                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-2.5 shadow-lg">
+                        <span id="stat-total-paintings" class="font-serif font-black text-lg text-redgold block">--</span>
+                        <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Total Paintings</span>
+                    </div>
+                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-2.5 shadow-lg">
+                        <span id="stat-total-students" class="font-serif font-black text-lg text-redtheme block">--</span>
+                        <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Total Students</span>
+                    </div>
+                </div>
+
+                <div class="w-12 h-0.5 bg-gradient-to-r from-transparent via-redtheme to-transparent mb-2"></div>
             </div>
 
-            <button onclick="startFastMovingPreview()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-redtheme via-red-600 to-red-800 text-white font-bold text-xs uppercase tracking-widest shadow-[0_10px_25px_rgba(220,38,38,0.5)] active:scale-95 transition-all flex items-center justify-center gap-2 mb-4">
+            <button onclick="startFastMovingPreview()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-redtheme via-red-600 to-red-800 text-white font-bold text-xs uppercase tracking-widest shadow-[0_10px_25px_rgba(220,38,38,0.5)] active:scale-95 transition-all flex items-center justify-center gap-2 mb-2">
                 <span>Enter Virtual Gallery</span>
                 <i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
 
             <!-- Heart Emoji Credit -->
-            <p class="text-[11px] text-gray-300 font-medium pb-2">
+            <p class="text-[10px] text-gray-300 font-medium pb-1">
                 Made by ❤️ Darpan Sukla
             </p>
         </div>
@@ -226,38 +256,43 @@
 
     </div>
 
-    <!-- PURCHASE UPI QR MODAL -->
+    <!-- PURCHASE UPI QR & BUYER DETAILS MODAL -->
     <div id="buy-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="w-full max-w-md bg-redcard border-t sm:border border-red-900/60 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center">
-            <div class="w-full flex items-center justify-between pb-3 border-b border-red-900/50 mb-4">
+        <div class="w-full max-w-md bg-redcard border-t sm:border border-red-900/60 rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl flex flex-col items-center text-center max-h-[90vh] overflow-y-auto">
+            <div class="w-full flex items-center justify-between pb-2 border-b border-red-900/50 mb-3">
                 <h3 class="font-serif font-bold text-sm text-white flex items-center gap-2">
-                    <i class="fa-solid fa-qrcode text-redtheme"></i> Scan to Collect Painting
+                    <i class="fa-solid fa-qrcode text-redtheme"></i> Acquire Painting
                 </h3>
                 <button onclick="closeBuyModal()" class="w-7 h-7 rounded-full bg-reddark text-gray-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             </div>
 
-            <div id="buy-modal-content" class="w-full mb-3"></div>
+            <div id="buy-modal-content" class="w-full mb-2"></div>
 
-            <!-- Dynamic QR Code Display -->
-            <div class="p-3 bg-white rounded-2xl border-4 border-redgold/60 shadow-2xl my-2">
-                <img id="upi-qr-image" src="" alt="UPI QR Code" class="w-48 h-48 object-contain">
+            <!-- Buyer Details Entry Form -->
+            <div class="w-full space-y-2 mb-2">
+                <input type="text" id="buyer-name" placeholder="Your Name *" class="w-full bg-reddark border border-red-900/60 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-redtheme">
+                <input type="tel" id="buyer-mobile" placeholder="Your Mobile Number *" class="w-full bg-reddark border border-red-900/60 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-redtheme">
             </div>
 
-            <div class="my-2 bg-reddark border border-red-900/60 rounded-xl px-4 py-2 text-xs font-mono text-redgold flex items-center gap-2">
+            <!-- Dynamic QR Code Display -->
+            <div class="p-2 bg-white rounded-2xl border-4 border-redgold/60 shadow-2xl my-1">
+                <img id="upi-qr-image" src="" alt="UPI QR Code" class="w-40 h-40 object-contain">
+            </div>
+
+            <div class="my-1 bg-reddark border border-red-900/60 rounded-xl px-3 py-1.5 text-xs font-mono text-redgold flex items-center gap-2">
                 <span>UPI ID:</span>
                 <strong class="text-white select-all">sdarpan128@oksbi</strong>
                 <button onclick="copyUPI()" class="ml-2 text-gray-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
             </div>
 
-            <!-- Full Amount Info Notice -->
-            <p class="text-[11px] text-gray-300 bg-redtheme/20 border border-redtheme/40 rounded-xl p-3 my-2 leading-relaxed">
-                ❤️ <strong>Full amount is transferred directly to the student artist.</strong> You can scan the QR code above and collect the physical painting!
+            <p class="text-[10px] text-gray-300 bg-redtheme/20 border border-redtheme/40 rounded-xl p-2 my-2 leading-relaxed">
+                ❤️ <strong>100% of the amount goes directly to the student artist.</strong> Scan to pay and collect your physical painting!
             </p>
 
-            <button onclick="closeBuyModal()" class="w-full py-3 mt-2 rounded-xl bg-gradient-to-r from-redtheme to-red-800 text-white font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition">
-                Done / Close
+            <button onclick="confirmPurchase()" class="w-full py-3 rounded-xl bg-gradient-to-r from-redtheme to-red-800 text-white font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition">
+                Confirm & Record Purchase
             </button>
         </div>
     </div>
@@ -270,18 +305,21 @@
     <!-- SCRIPT ENGINE -->
     <script>
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTFRg_lxjO5-ps81aRxQj0V46eA9MQjMPcWM4p_OQgKPRjbaTXC5w24l45yfokmoZuyUmkEHTGtoX5q/pub?gid=0&single=true&output=csv";
-        // Optional Google Apps Script Web App URL to store likes in Sheet2
-        const GOOGLE_SHEET_LIKES_WEBAPP_URL = ""; 
+        const LIKES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTFRg_lxjO5-ps81aRxQj0V46eA9MQjMPcWM4p_OQgKPRjbaTXC5w24l45yfokmoZuyUmkEHTGtoX5q/pub?gid=1300117893&single=true&output=csv";
+        const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwB0hGv6brfLl8CO35zxZJPYKfzMTDEYEoKUiP1DHOK7-RD-fBGPAr0WoVCxNnjkDAI2g/exec"; 
 
         let reelArtworks = [];
         let uniqueStudents = new Set();
+        let artistLikesMap = {}; // Maps artist name to total sum of likes
         let likedArtworks = new Set(JSON.parse(localStorage.getItem('red_liked_artworks') || '[]'));
         let countdownTimer = null;
         let secondsRemaining = 30;
         let autoScrollInterval = null;
+        let activePurchaseData = {};
+        let lastTapTime = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
-            fetchSheetData();
+            fetchLikesAndArtworks();
         });
 
         function resolveDriveImage(url) {
@@ -294,13 +332,46 @@
             return url;
         }
 
-        // Fisher-Yates Array Shuffle Algorithm for Randomization
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
+        }
+
+        // Fetch Likes CSV, aggregate by Artist Name, then load Exhibition Data CSV
+        function fetchLikesAndArtworks() {
+            Papa.parse(LIKES_CSV_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(likesResults) {
+                    if (likesResults.data) {
+                        likesResults.data.forEach(row => {
+                            const artistName = (row['Artist Name'] || '').trim().toUpperCase();
+                            const totalLikes = parseInt(row['Current Like Count'] || row['Total Likes'] || 0);
+                            const action = (row['Action'] || 'like').trim();
+                            
+                            if (artistName) {
+                                if (!artistLikesMap[artistName]) {
+                                    artistLikesMap[artistName] = 0;
+                                }
+                                // Sum up likes automatically
+                                if (action === 'unlike') {
+                                    artistLikesMap[artistName] = Math.max(0, artistLikesMap[artistName] - 1);
+                                } else {
+                                    artistLikesMap[artistName] += Math.max(1, totalLikes > 0 ? 1 : 0);
+                                }
+                            }
+                        });
+                    }
+                    fetchSheetData();
+                },
+                error: function() {
+                    fetchSheetData(); // Fallback if likes sheet fails
+                }
+            });
         }
 
         function fetchSheetData() {
@@ -334,34 +405,61 @@
 
                 const art1 = resolveDriveImage(row['Artwork 1'] || '');
                 if (art1) {
+                    const id1 = `reel-${rowIndex}-1`;
                     reelArtworks.push({
-                        id: `reel-${rowIndex}-1`,
+                        id: id1,
                         artistName: name || 'Student Artist',
                         artistClass: studentClass,
                         profilePhoto: profilePhoto,
                         image: art1,
                         description: row['Artwork 1 Description'] || 'Exhibition Student Painting.',
                         price: row['Price 1'] || 'Not for sale',
-                        likesCount: Math.floor(Math.random() * 35) + 12
+                        likesCount: 0
                     });
                 }
 
                 const art2 = resolveDriveImage(row['Artwork 2'] || '');
                 if (art2) {
+                    const id2 = `reel-${rowIndex}-2`;
                     reelArtworks.push({
-                        id: `reel-${rowIndex}-2`,
+                        id: id2,
                         artistName: name || 'Student Artist',
                         artistClass: studentClass,
                         profilePhoto: profilePhoto,
                         image: art2,
                         description: row['Artwork 2 Description'] || 'Exhibition Student Painting.',
                         price: row['Price 2'] || 'Not for sale',
-                        likesCount: Math.floor(Math.random() * 25) + 8
+                        likesCount: 0
                     });
                 }
             });
 
-            // Randomize paintings array so they appear randomly on every load
+            // Calculate aggregated artist-level total likes for paintings
+            // Group sum by artist name so same name combines all likes
+            let artistBestPainting = {};
+            
+            reelArtworks.forEach(art => {
+                const key = art.artistName.toUpperCase();
+                const sheetSum = artistLikesMap[key] || 0;
+                // Distribute or assign aggregated likes or local storage likes
+                const isLikedLocally = likedArtworks.has(art.id) ? 1 : 0;
+                art.likesCount = sheetSum + isLikedLocally;
+            });
+
+            // Find Highest Liked Painting for Welcome Screen Banner
+            if (reelArtworks.length > 0) {
+                let topArt = reelArtworks.reduce((max, art) => {
+                    return art.likesCount > max.likesCount ? art : max;
+                }, reelArtworks[0]);
+
+                if (topArt.likesCount >= 0) {
+                    document.getElementById('featured-img').src = topArt.image;
+                    document.getElementById('featured-artist').innerText = topArt.artistName;
+                    document.getElementById('featured-likes').innerText = topArt.likesCount;
+                    document.getElementById('featured-top-painting').classList.remove('hidden');
+                }
+            }
+
             reelArtworks = shuffleArray(reelArtworks);
 
             document.getElementById('stat-total-paintings').innerText = reelArtworks.length;
@@ -476,7 +574,7 @@
 
             artworksToRender.forEach((art, index) => {
                 const isLiked = likedArtworks.has(art.id);
-                const displayLikes = art.likesCount + (isLiked ? 1 : 0);
+                const displayLikes = art.likesCount;
                 
                 const priceText = (art.price || '').trim();
                 const isNotForSale = priceText.toLowerCase().includes('not for sale') || priceText === '0' || priceText === '';
@@ -487,7 +585,7 @@
                 
                 card.innerHTML = `
                     <div class="w-full h-full flex items-center justify-center p-6 pb-28 pt-20">
-                        <div class="digital-reel-frame rounded-lg overflow-hidden w-full max-h-[68vh] bg-black flex items-center justify-center relative">
+                        <div class="digital-reel-frame rounded-lg overflow-hidden w-full max-h-[68vh] bg-black flex items-center justify-center relative cursor-pointer" onclick="handleImageClick(event, '${art.id}', '${escapeAttr(art.artistName)}', ${index})">
                             <img src="${art.image}" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-8 text-center text-xs text-gray-500\'>Image direct stream pending.</div>';">
                         </div>
                     </div>
@@ -512,7 +610,7 @@
                             <span class="text-[10px] font-bold text-gray-200" id="like-count-${index}">${displayLikes}</span>
                         </button>
 
-                        <!-- Buy / Not For Sale Button -->
+                        <!-- Buy Button -->
                         ${isNotForSale ? `
                             <button disabled class="flex flex-col items-center gap-1 opacity-50 cursor-not-allowed">
                                 <div class="w-11 h-11 rounded-full bg-gray-800 text-gray-400 border border-gray-700 flex items-center justify-center">
@@ -549,39 +647,67 @@
             });
         }
 
-        // Liking Handler & Storing to Google Sheets Sheet2
+        // Handle Image Double-Tap to Like
+        function handleImageClick(e, id, artistName, index) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTapTime;
+            
+            if (tapLength < 350 && tapLength > 0) {
+                e.preventDefault();
+                const frame = e.currentTarget;
+                const heartPop = document.createElement('i');
+                heartPop.className = 'fa-solid fa-heart double-tap-heart';
+                const rect = frame.getBoundingClientRect();
+                heartPop.style.left = `${e.clientX - rect.left}px`;
+                heartPop.style.top = `${e.clientY - rect.top}px`;
+                frame.appendChild(heartPop);
+                setTimeout(() => { heartPop.remove(); }, 800);
+
+                if (!likedArtworks.has(id)) {
+                    toggleReelLike(id, artistName, index, e);
+                } else {
+                    triggerFullHeartBurst(e);
+                }
+            }
+            lastTapTime = currentTime;
+        }
+
+        // Liking Handler & Direct Post to Sheet2
         function toggleReelLike(id, artistName, index, event) {
             const countEl = document.getElementById(`like-count-${index}`);
             if (!countEl) return;
             let count = parseInt(countEl.innerText) || 0;
             let action = 'like';
 
+            const artObj = reelArtworks.find(a => a.id === id);
+
             if (likedArtworks.has(id)) {
                 likedArtworks.delete(id);
                 countEl.innerText = count - 1;
+                if (artObj) artObj.likesCount = count - 1;
                 showToast("Removed from favorites");
                 action = 'unlike';
             } else {
                 likedArtworks.add(id);
                 countEl.innerText = count + 1;
+                if (artObj) artObj.likesCount = count + 1;
                 showToast("Liked Painting ❤️");
                 triggerFullHeartBurst(event);
                 action = 'like';
             }
             localStorage.setItem('red_liked_artworks', JSON.stringify(Array.from(likedArtworks)));
 
-            // Store like data in Google Sheet2 Web App if endpoint URL provided
-            if (GOOGLE_SHEET_LIKES_WEBAPP_URL) {
-                fetch(GOOGLE_SHEET_LIKES_WEBAPP_URL, {
+            if (GOOGLE_SHEET_WEBAPP_URL) {
+                fetch(GOOGLE_SHEET_WEBAPP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        type: "like",
                         artworkId: id,
                         artistName: artistName,
                         totalLikes: parseInt(countEl.innerText),
-                        action: action,
-                        timestamp: new Date().toISOString()
+                        action: action
                     })
                 }).catch(err => console.log('Sheet update error:', err));
             }
@@ -615,21 +741,28 @@
             }
         }
 
-        // Generate UPI QR Code Pop-Up
+        // Open Buy Modal & Prepare Dynamic QR Code
         function openBuyModal(artist, desc, price, img) {
             const numericPrice = (price || '').replace(/[^0-9]/g, '') || '500';
             const upiUrl = `upi://pay?pa=sdarpan128@oksbi&pn=SouthPointArtExhibition&am=${numericPrice}&cu=INR&tn=Painting-${encodeURIComponent(artist)}`;
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
 
+            activePurchaseData = {
+                artistName: artist,
+                amount: numericPrice
+            };
+
             document.getElementById('upi-qr-image').src = qrApiUrl;
+            document.getElementById('buyer-name').value = '';
+            document.getElementById('buyer-mobile').value = '';
 
             document.getElementById('buy-modal-content').innerHTML = `
-                <div class="flex items-center gap-3 p-3 rounded-xl bg-reddark border border-red-900/50 text-left w-full">
-                    <img src="${img}" class="w-14 h-14 rounded-lg object-cover border border-red-900/60">
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-reddark border border-red-900/50 text-left w-full">
+                    <img src="${img}" class="w-12 h-12 rounded-lg object-cover border border-red-900/60">
                     <div>
                         <h4 class="font-serif font-bold text-xs text-white">${artist}</h4>
                         <p class="text-[10px] text-gray-400 line-clamp-1">${desc}</p>
-                        <p class="text-sm font-bold text-redgold mt-1">₹${numericPrice}</p>
+                        <p class="text-xs font-bold text-redgold mt-0.5">₹${numericPrice}</p>
                     </div>
                 </div>
             `;
@@ -640,6 +773,35 @@
         function closeBuyModal() {
             document.getElementById('buy-modal').classList.remove('flex');
             document.getElementById('buy-modal').classList.add('hidden');
+        }
+
+        // Confirm & Direct Post Purchase Data to Sheet3
+        function confirmPurchase() {
+            const name = document.getElementById('buyer-name').value.trim();
+            const mobile = document.getElementById('buyer-mobile').value.trim();
+
+            if (!name || !mobile) {
+                showToast("Please enter your Name and Mobile Number!");
+                return;
+            }
+
+            if (GOOGLE_SHEET_WEBAPP_URL) {
+                fetch(GOOGLE_SHEET_WEBAPP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: "purchase",
+                        buyerName: name,
+                        buyerMobile: mobile,
+                        artistName: activePurchaseData.artistName,
+                        amount: activePurchaseData.amount
+                    })
+                }).catch(err => console.log('Purchase log error:', err));
+            }
+
+            closeBuyModal();
+            showToast("Thank you! Order logged successfully 🎉");
         }
 
         function copyUPI() {
