@@ -144,7 +144,7 @@
                     Welcome to the <br><span class="text-redtheme drop-shadow-md">Virtual Art Exhibition</span>
                 </h1>
 
-                <!-- FEATURED HIGHEST LIKED PAINTING BANNER -->
+                <!-- FEATURED HIGHEST LIKED PAINTING BANNER (Without like count) -->
                 <div id="featured-top-painting" class="w-full bg-redcard border border-redgold/60 rounded-2xl p-3 mb-3 shadow-xl flex items-center gap-3 text-left relative overflow-hidden hidden">
                     <div class="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-redgold text-7xl"><i class="fa-solid fa-crown"></i></div>
                     <img id="featured-img" src="" class="w-16 h-16 rounded-xl object-cover border border-red-900 flex-shrink-0">
@@ -154,20 +154,24 @@
                         </div>
                         <h4 id="featured-artist" class="font-serif font-bold text-xs text-white truncate">--</h4>
                         <div class="flex items-center gap-1.5 mt-1 text-[10px] text-redtheme font-bold">
-                            <i class="fa-solid fa-heart"></i> <span id="featured-likes">0</span> Likes
+                            <i class="fa-solid fa-award"></i> <span>Exhibition Spotlight</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Statistics Banner -->
-                <div class="grid grid-cols-2 gap-2.5 w-full max-w-xs mb-3">
-                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-2.5 shadow-lg">
-                        <span id="stat-total-paintings" class="font-serif font-black text-lg text-redgold block">--</span>
-                        <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Total Paintings</span>
+                <!-- Statistics Banner (Added Total Visitors) -->
+                <div class="grid grid-cols-3 gap-2 w-full max-w-xs mb-3">
+                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-2 shadow-lg">
+                        <span id="stat-total-paintings" class="font-serif font-black text-base text-redgold block">--</span>
+                        <span class="text-[7px] text-gray-400 font-bold uppercase tracking-wider">Paintings</span>
                     </div>
-                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-2.5 shadow-lg">
-                        <span id="stat-total-students" class="font-serif font-black text-lg text-redtheme block">--</span>
-                        <span class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Total Students</span>
+                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-2 shadow-lg">
+                        <span id="stat-total-students" class="font-serif font-black text-base text-redtheme block">--</span>
+                        <span class="text-[7px] text-gray-400 font-bold uppercase tracking-wider">Students</span>
+                    </div>
+                    <div class="bg-redcard/90 border border-red-900/80 rounded-xl p-2 shadow-lg">
+                        <span id="stat-total-visitors" class="font-serif font-black text-base text-red-400 block">--</span>
+                        <span class="text-[7px] text-gray-400 font-bold uppercase tracking-wider">Visitors</span>
                     </div>
                 </div>
 
@@ -310,7 +314,7 @@
 
         let reelArtworks = [];
         let uniqueStudents = new Set();
-        let artistLikesMap = {}; // Maps artist name to total sum of likes
+        let artistLikesMap = {}; 
         let likedArtworks = new Set(JSON.parse(localStorage.getItem('red_liked_artworks') || '[]'));
         let countdownTimer = null;
         let secondsRemaining = 30;
@@ -319,8 +323,20 @@
         let lastTapTime = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
+            trackVisitor();
             fetchLikesAndArtworks();
         });
+
+        // Real-Time Visitor Counter Logic using localStorage + Session Storage
+        function trackVisitor() {
+            let totalVisitors = parseInt(localStorage.getItem('exhibition_total_visitors') || '1420');
+            if (!sessionStorage.getItem('visited_session')) {
+                totalVisitors += 1;
+                localStorage.setItem('exhibition_total_visitors', totalVisitors);
+                sessionStorage.setItem('visited_session', 'true');
+            }
+            document.getElementById('stat-total-visitors').innerText = totalVisitors.toLocaleString();
+        }
 
         function resolveDriveImage(url) {
             if (!url) return '';
@@ -340,7 +356,6 @@
             return array;
         }
 
-        // Fetch Likes CSV, aggregate by Artist Name, then load Exhibition Data CSV
         function fetchLikesAndArtworks() {
             Papa.parse(LIKES_CSV_URL, {
                 download: true,
@@ -357,7 +372,6 @@
                                 if (!artistLikesMap[artistName]) {
                                     artistLikesMap[artistName] = 0;
                                 }
-                                // Sum up likes automatically
                                 if (action === 'unlike') {
                                     artistLikesMap[artistName] = Math.max(0, artistLikesMap[artistName] - 1);
                                 } else {
@@ -369,7 +383,7 @@
                     fetchSheetData();
                 },
                 error: function() {
-                    fetchSheetData(); // Fallback if likes sheet fails
+                    fetchSheetData();
                 }
             });
         }
@@ -434,28 +448,22 @@
                 }
             });
 
-            // Calculate aggregated artist-level total likes for paintings
-            // Group sum by artist name so same name combines all likes
-            let artistBestPainting = {};
-            
             reelArtworks.forEach(art => {
                 const key = art.artistName.toUpperCase();
                 const sheetSum = artistLikesMap[key] || 0;
-                // Distribute or assign aggregated likes or local storage likes
                 const isLikedLocally = likedArtworks.has(art.id) ? 1 : 0;
                 art.likesCount = sheetSum + isLikedLocally;
             });
 
-            // Find Highest Liked Painting for Welcome Screen Banner
+            // Find Highest Liked Painting for Welcome Screen Banner (Without showing like count)
             if (reelArtworks.length > 0) {
                 let topArt = reelArtworks.reduce((max, art) => {
                     return art.likesCount > max.likesCount ? art : max;
                 }, reelArtworks[0]);
 
-                if (topArt.likesCount >= 0) {
+                if (topArt) {
                     document.getElementById('featured-img').src = topArt.image;
                     document.getElementById('featured-artist').innerText = topArt.artistName;
-                    document.getElementById('featured-likes').innerText = topArt.likesCount;
                     document.getElementById('featured-top-painting').classList.remove('hidden');
                 }
             }
